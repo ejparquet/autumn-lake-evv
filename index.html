@@ -1401,10 +1401,10 @@ views.worker = q => {
   </section>
   <div class="prof-grid mt-2">
     <div class="grid gap-2" style="align-content:start">
-      ${notesCard('w', w.id, p.notes, 'Add a note about this worker — scheduling limits, coaching, recognition…')}
       <section class="card reveal d3"><div class="card-h"><h2>Assigned clients</h2>${editBtn('edit-worker', w.id, 'Change')}</div><div class="card-b grid gap-2">
         ${cls.map(c=>`<div class="flex items-center justify-between gap-3 inset" style="padding:8px 12px">${personLink(c,'client',`${c.svc} · ${esc(c.city)}`)}<div class="text-right" style="min-width:140px"><small class="mono" style="color:var(--muted)">${c.usedW} / ${c.capW} h this wk</small>${meter(c.usedW,c.capW)}</div></div>`).join('') || '<div class="empty" style="padding:16px">No clients linked.</div>'}
       </div></section>
+      ${notesCard('w', w.id, p.notes, 'Add a note about this worker — scheduling limits, coaching, recognition…')}
       <section class="card reveal d3"><div class="card-h"><h2>Training</h2>${editBtn('w-train', w.id, 'Manage')}</div><div class="card-b">
         <div class="flex justify-between items-center mb-1"><small style="color:var(--muted)">${new Date().getFullYear()} annual requirement</small><span class="mono" style="font-size:13px">${p.training} / 16 h</span></div>${meter(p.training,16)}
         <div class="grid gap-1 mt-3">${tl.slice(0,5).map(r=>`<div class="flex justify-between gap-3" style="padding:6px 0;border-bottom:1px solid var(--line-2);font-size:13px"><div style="min-width:0"><b style="font-weight:500">${esc(r.course)}</b><br><small style="color:var(--muted)">${fmtLong(pd(r.d))} · ${r.src}</small></div><span class="mono" style="white-space:nowrap">${r.h} h</span></div>`).join('') || '<small style="color:var(--muted)">No training recorded this year.</small>'}
