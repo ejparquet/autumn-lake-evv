@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#11244A">
+<title>Autumn Lake EVV — Worker</title>
+<link rel="icon" href="brand_assets/logo.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1E3E72; --navy-900:#11244A; --navy-700:#2A4E8A; --navy-100:#DCE4F1; --navy-50:#EEF2F8;
+  --gold:#F7CC3B; --gold-700:#8F6A00; --gold-100:#FCEDB8; --gold-50:#FEF8E4;
+  --rust:#B04E26; --rust-50:#FBEADF;
+  --ink:#1A2740; --muted:#566079; --faint:#8A90A0;
+  --paper:#F6F2E9; --surface:#FFFDF8; --surface-2:#FBF8F1; --line:#E7E0D1; --line-2:#EFE9DD;
+  --ok:#2C6A4D; --ok-50:#E2F0E7; --warn:#875700; --warn-50:#FDF0CF; --bad:#A3311D; --bad-50:#FBE3DC;
+  --sh-1:0 1px 1px rgba(17,36,74,.04),0 2px 6px -2px rgba(17,36,74,.08);
+  --sh-2:0 1px 2px rgba(17,36,74,.05),0 8px 18px -8px rgba(17,36,74,.16),0 20px 40px -24px rgba(17,36,74,.2);
+  --sh-3:0 2px 4px rgba(17,36,74,.08),0 20px 40px -12px rgba(17,36,74,.3);
+  --spring:cubic-bezier(.34,1.36,.64,1); --ease:cubic-bezier(.22,.8,.26,1);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:'Instrument Sans',system-ui,sans-serif;color:var(--ink);line-height:1.6;font-size:16px;-webkit-font-smoothing:antialiased;
+  background:radial-gradient(700px 500px at 85% 0%,rgba(247,204,59,.22),transparent 60%),radial-gradient(600px 600px at 0% 100%,rgba(176,78,38,.2),transparent 60%),var(--navy-900)}
+.display{font-family:'Fraunces',Georgia,serif;letter-spacing:-.03em;font-weight:500}
+.mono{font-family:'IBM Plex Mono',monospace;letter-spacing:-.02em}
+.phone{max-width:430px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;background:var(--paper);position:relative;overflow:hidden}
+.phone::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;opacity:.4;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .35 0 0 0 0 .25 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+@media (min-width:500px){ .phone{height:min(900px,calc(100dvh - 48px));margin-top:24px;border-radius:40px;box-shadow:0 0 0 10px #0A1730,0 40px 80px -20px rgba(0,0,0,.6)} }
+.scroll{flex:1;overflow-y:auto;position:relative;z-index:1;padding:0 20px 24px}
+.hero{background:linear-gradient(160deg,var(--navy-900),var(--navy) 120%);color:#fff;margin:0 -20px;padding:16px 20px 72px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(247,204,59,.35),transparent 65%)}
+.hero .logo{background:#fff;border-radius:12px;width:40px;height:40px;display:grid;place-items:center}
+.lift{margin-top:-56px;position:relative;z-index:2}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh-2)}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:56px;font:inherit;font-weight:700;font-size:17px;border-radius:16px;border:1px solid transparent;cursor:pointer;transition:transform .35s var(--spring),background-color .2s,box-shadow .2s;text-decoration:none}
+.btn svg{width:22px;height:22px}
+.btn:active{transform:scale(.97)}
+.btn:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.btn-primary{background:var(--navy);color:#fff;box-shadow:0 10px 20px -10px rgba(30,62,114,.8)}
+.btn-primary:hover{background:var(--navy-700)}
+.btn-gold{background:var(--gold);color:var(--navy-900);box-shadow:0 10px 20px -10px rgba(201,154,18,.9)}
+.btn-gold:hover{background:#FFD95A}
+.btn-danger{background:var(--bad);color:#fff;box-shadow:0 10px 20px -10px rgba(163,49,29,.8)}
+.btn-danger:hover{background:#B83A24}
+.btn-ghost{background:var(--surface);border-color:var(--line);color:var(--ink)}
+.btn-ghost:hover{background:#fff;border-color:#CFC6B2}
+.btn-sm{min-height:44px;font-size:15px;border-radius:12px;width:auto;padding:0 16px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:2px 10px;border-radius:999px;line-height:1.6}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.chip.ok{background:var(--ok-50);color:var(--ok)} .chip.warn{background:var(--warn-50);color:var(--warn)} .chip.bad{background:var(--bad-50);color:var(--bad)} .chip.info{background:var(--navy-50);color:var(--navy)} .chip.neutral{background:#EEEBE3;color:#4B5263} .chip.gold{background:var(--gold-100);color:#6B4F00}
+.tabs{position:relative;z-index:3;display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
+.tabs button{font:inherit;font-size:12px;font-weight:600;color:var(--muted);background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;min-height:56px;border-radius:14px;cursor:pointer;position:relative;transition:color .2s,background-color .2s}
+.tabs button svg{width:24px;height:24px;transition:transform .35s var(--spring)}
+.tabs button:hover{color:var(--ink)} .tabs button:active svg{transform:scale(.88)}
+.tabs button:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+.tabs button[aria-current=page]{color:var(--navy-900);background:var(--gold-50)}
+.tabs .dot{position:absolute;top:4px;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:9px;background:var(--rust);color:#fff;font-size:11px;display:grid;place-items:center;padding:0 4px}
+.row{display:flex;align-items:center;gap:12px}
+.av{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-weight:700;background:var(--gold-100);color:var(--navy-900);flex:none}
+.meter{height:10px;border-radius:999px;background:#ECE6D9;overflow:hidden}
+.meter i{display:block;height:100%;border-radius:999px;background:var(--navy);transform-origin:left;animation:grow 1s var(--ease) both}
+.meter.warn i{background:linear-gradient(90deg,#E0AE16,var(--gold))} .meter.bad i{background:var(--rust)}
+@keyframes grow{from{transform:scaleX(0)}}
+.banner{border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:flex-start;font-size:14.5px;line-height:1.5}
+.banner svg{width:22px;height:22px;flex:none;margin-top:1px}
+.banner.warn{background:var(--warn-50);color:#5E3D00;border:1px solid #F1D89A}
+.banner.bad{background:var(--bad-50);color:#6E1E10;border:1px solid #EFB7A8}
+.list-btn{display:flex;width:100%;text-align:left;align-items:center;gap:12px;padding:16px;font:inherit;background:var(--surface);border:0;border-bottom:1px solid var(--line-2);cursor:pointer;min-height:64px;color:inherit;transition:background-color .15s}
+.list-btn:hover{background:#FDF9EE} .list-btn:active{background:#F8F1DE} .list-btn:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+.list-btn:last-child{border-bottom:0}
+.sheet-scrim{position:absolute;inset:0;z-index:20;background:rgba(14,28,56,.45);animation:fade .25s}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:21;background:var(--surface);border-radius:28px 28px 0 0;max-height:92%;display:flex;flex-direction:column;box-shadow:var(--sh-3);animation:up .5s var(--spring)}
+.sheet .grab{width:44px;height:5px;border-radius:3px;background:#D8D0BF;margin:8px auto 0}
+.sheet-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:12px 20px 8px}
+.sheet-h h2{margin:0;font-family:'Fraunces',serif;font-weight:500;font-size:26px;letter-spacing:-.03em;color:var(--navy-900);line-height:1.15}
+.sheet-b{padding:4px 20px 24px;overflow-y:auto}
+.x{width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2);display:grid;place-items:center;cursor:pointer;flex:none;transition:transform .3s var(--spring)}
+.x:hover{background:#fff} .x:active{transform:scale(.92)} .x:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.x svg{width:20px;height:20px}
+@keyframes up{from{transform:translateY(100%)}} @keyframes fade{from{opacity:0}}
+label.f{display:block;font-size:14px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.in{width:100%;font:inherit;font-size:16px;padding:12px 14px;min-height:52px;border:1px solid #DCD3C1;border-radius:14px;background:#fff;color:var(--ink)}
+.in:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(30,62,114,.2)}
+.task{display:flex;align-items:center;gap:12px;padding:12px 14px;min-height:56px;border:1px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;font-weight:500;transition:background-color .2s,border-color .2s,transform .3s var(--spring)}
+.task:hover{border-color:#CFC6B2} .task:active{transform:scale(.98)}
+.task input{width:24px;height:24px;accent-color:var(--navy);flex:none}
+.task:has(input:checked){background:var(--navy-50);border-color:var(--navy-100)}
+.task:has(input:focus-visible){outline:3px solid var(--gold);outline-offset:2px}
+.choice{display:flex;align-items:center;gap:16px;width:100%;padding:16px;min-height:84px;border-radius:18px;border:1px solid var(--line);background:#fff;font:inherit;text-align:left;cursor:pointer;color:inherit;box-shadow:var(--sh-1);transition:transform .35s var(--spring),box-shadow .2s,border-color .2s}
+.choice:hover{border-color:#CFC6B2;box-shadow:var(--sh-2)} .choice:active{transform:scale(.98)} .choice:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.choice .ic{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;flex:none}
+.choice .ic svg{width:28px;height:28px}
+.viewfinder{position:relative;aspect-ratio:1;border-radius:24px;overflow:hidden;background:radial-gradient(circle at 40% 30%,#3a4660,#141c2c);display:grid;place-items:center}
+.viewfinder .corners{position:absolute;inset:18%;border-radius:12px;background:
+  linear-gradient(var(--gold),var(--gold)) top left/36px 4px no-repeat,linear-gradient(var(--gold),var(--gold)) top left/4px 36px no-repeat,
+  linear-gradient(var(--gold),var(--gold)) top right/36px 4px no-repeat,linear-gradient(var(--gold),var(--gold)) top right/4px 36px no-repeat,
+  linear-gradient(var(--gold),var(--gold)) bottom left/36px 4px no-repeat,linear-gradient(var(--gold),var(--gold)) bottom left/4px 36px no-repeat,
+  linear-gradient(var(--gold),var(--gold)) bottom right/36px 4px no-repeat,linear-gradient(var(--gold),var(--gold)) bottom right/4px 36px no-repeat}
+.viewfinder .line{position:absolute;left:20%;right:20%;top:20%;height:2px;background:var(--gold);box-shadow:0 0 16px 4px rgba(247,204,59,.6);animation:scan 1.6s ease-in-out infinite alternate}
+@keyframes scan{to{transform:translateY(calc(min(60vw,260px)))}}
+.radar{position:relative;width:180px;height:180px;margin:16px auto;display:grid;place-items:center}
+.radar span{position:absolute;inset:0;border-radius:50%;border:2px solid var(--navy);opacity:0;animation:ping 2s var(--ease) infinite}
+.radar span:nth-child(2){animation-delay:.6s}.radar span:nth-child(3){animation-delay:1.2s}
+.radar b{width:56px;height:56px;border-radius:50%;background:var(--navy);display:grid;place-items:center;color:#fff;box-shadow:0 10px 20px -6px rgba(30,62,114,.7)}
+@keyframes ping{0%{opacity:.6;transform:scale(.3)}100%{opacity:0;transform:scale(1)}}
+.timer{font-family:'Fraunces',serif;font-size:60px;line-height:1;letter-spacing:-.04em;font-weight:500;font-variant-numeric:tabular-nums}
+.pad-wrap{position:relative;border:2px dashed #CFC6B2;border-radius:18px;background:#fff;touch-action:none}
+.pad-wrap canvas{display:block;width:100%;height:200px;border-radius:16px;cursor:crosshair}
+.pad-wrap .base{position:absolute;left:20px;right:20px;bottom:44px;border-bottom:1px solid #DCD3C1;pointer-events:none}
+.pad-wrap .hint{position:absolute;left:20px;bottom:16px;font-size:13px;color:var(--faint);pointer-events:none}
+.bubble{max-width:82%;padding:12px 16px;border-radius:18px 18px 4px 18px;background:var(--navy);color:#fff;margin-left:auto}
+.bubble.them{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:18px 18px 18px 4px;margin-left:0}
+.call{position:absolute;inset:0;z-index:40;background:linear-gradient(180deg,#0E1F40,#1E3E72);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:72px 24px 48px;animation:fade .3s}
+.call .ring{width:112px;height:112px;border-radius:50%;background:#fff;display:grid;place-items:center;position:relative}
+.call .ring::before,.call .ring::after{content:"";position:absolute;inset:-12px;border-radius:50%;border:2px solid rgba(247,204,59,.6);animation:ping 1.8s infinite}
+.call .ring::after{animation-delay:.9s}
+.round{width:72px;height:72px;border-radius:50%;border:0;display:grid;place-items:center;cursor:pointer;transition:transform .35s var(--spring)}
+.round:active{transform:scale(.92)} .round:hover{filter:brightness(1.08)} .round:focus-visible{outline:3px solid var(--gold);outline-offset:4px}
+.round svg{width:30px;height:30px;color:#fff}
+.toast{position:absolute;left:16px;right:16px;top:16px;z-index:50;background:var(--navy-900);color:#fff;border-radius:16px;padding:12px 16px;display:flex;gap:12px;align-items:center;box-shadow:var(--sh-3);font-weight:500;animation:drop .5s var(--spring)}
+.toast svg{width:20px;color:var(--gold);flex:none}
+@keyframes drop{from{opacity:0;transform:translateY(-16px)}}
+.reveal{animation:rise .55s var(--ease) both} .d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+.steps{display:flex;gap:6px;margin:4px 0 16px}
+.steps i{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.steps i.on{background:var(--gold)}
+.section-t{font-family:'Fraunces',serif;font-weight:500;font-size:21px;letter-spacing:-.02em;color:var(--navy-900);margin:24px 0 12px}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;cursor:pointer;font-weight:500}
+.toggle input{position:absolute;opacity:0;width:1px;height:1px}
+.toggle .tr{width:50px;height:30px;border-radius:999px;background:#D7D0C2;position:relative;transition:background-color .25s;flex:none}
+.toggle .tr::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .35s var(--spring)}
+.toggle input:checked + .tr{background:var(--ok)} .toggle input:checked + .tr::after{transform:translateX(20px)}
+.toggle input:focus-visible + .tr{outline:3px solid var(--gold);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+  <main class="scroll" id="screen" tabindex="-1"></main>
+  <nav class="tabs" id="tabs" aria-label="Main"></nav>
+  <div id="layer"></div>
+</div>
+
+<script>
+const I = {
+  home:'<path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  sheet:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+  chat:'<path d="M4 5h16v11H9l-5 4z"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  qr:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v7h-4M14 21v-3"/>',
+  gps:'<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3"/>',
+  pin:'<path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/>',
+  check:'<path d="m5 12 5 5 9-10"/>', x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  alert:'<path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17v.5"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>',
+  send:'<path d="m4 12 16-8-6 16-2-7z"/>', edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>', back:'<path d="M15 5l-7 7 7 7"/>',
+  out:'<path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 17l5-5-5-5M15 12H4"/>', pen:'<path d="M3 21c3-1 5-3 6-6l9-9a2.1 2.1 0 0 0-3-3l-9 9c-3 1-5 3-6 6"/>',
+  chev:'<path d="m9 5 7 7-7 7"/>', shield:'<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>'
+};
+const ic = (n, s='') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${s}>${I[n]}</svg>`;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ago = m => new Date(Date.now() - m*60000), ahead = m => new Date(Date.now() + m*60000);
+const dayAt = (d,h,m=0) => { const x = new Date(); x.setDate(x.getDate()+d); x.setHours(h,m,0,0); return x; };
+const fmtT = d => d ? d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '—';
+const fmtDay = d => d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+const hrs = (a,b) => (b-a)/3600000;
+
+/* ===== State ===== */
+const me = {name:'Tasha Robichaux', first:'Tasha', lasrs:'W-204118', sup:'Monique Thibodeaux', supPhone:'(225) 555-0100', capW:40};
+const clients = {
+  c1:{name:'Odette Guidry', addr:'4127 Government St, Baton Rouge', svc:'LT-PCS', radius:150, capLeft:3.5},
+  c3:{name:'Lorraine Hebert', addr:'9533 Florida Blvd, Baton Rouge', svc:'NOW-IFS', radius:200, capLeft:9},
+};
+const TASKS = ['Bathing / personal hygiene','Dressing & grooming','Meal preparation','Medication reminder','Mobility / transfers','Light housekeeping','Laundry','Errands / shopping','Companionship'];
+const today = [
+  {id:'V-88180', c:'c3', start:dayAt(0,7,0), end:dayAt(0,10,0), aIn:dayAt(0,7,2), aOut:dayAt(0,10,1), method:'QR', tasks:['Bathing / personal hygiene','Meal preparation','Medication reminder'], status:'done'},
+  {id:'V-88211', c:'c1', start:ago(5), end:ahead(85), status:'next'},
+];
+const week = [
+  {d:-6, c:'c1', in:[9,0], out:[13,15]},
+  {d:-5, c:'c3', in:[8,0], out:[14,30]}, {d:-5, c:'c1', in:[15,0], out:[18,0]},
+  {d:-4, c:'c1', in:[8,0], out:[12,0]}, {d:-3, c:'c3', in:[8,0], out:[14,30], corr:'Approved'},
+  {d:-2, c:'c1', in:[9,0], out:[13,15]}, {d:-1, c:'c3', in:[7,0], out:[13,0]},
+].map((x,i)=>({id:'V-8'+(8000+i*17), c:x.c, aIn:dayAt(x.d,...x.in), aOut:dayAt(x.d,...x.out), corr:x.corr}));
+let active = null; // {visit, start, method, dist}
+let tsStatus = 'Draft'; let sigs = {worker:null, client:null};
+const msgs = [
+  {id:'t1', from:'Monique Thibodeaux', role:'Supervisor', unread:true, items:[{me:false, t:ago(40), body:'Reminder: storm advisory for East Baton Rouge tonight. Please confirm your evening visits with clients before heading out.'}]},
+  {id:'t2', from:'Autumn Lake Office', role:'Agency', unread:false, items:[{me:false, t:ago(1440), body:'Weekend timesheets are due Sunday by 8 PM. Please make sure clients sign on the last visit of the week.'},{me:true, t:ago(1400), body:'Got it, thank you!'}]},
+];
+let tab = 'today', openThread = null;
+const weekHours = () => week.reduce((s,v)=>s+hrs(v.aIn,v.aOut),0) + today.filter(v=>v.status==='done').reduce((s,v)=>s+hrs(v.aIn,v.aOut),0) + (active ? hrs(active.start, new Date()) : 0);
+
+/* ===== UI utils ===== */
+function toast(msg, icon='check'){ const t = document.createElement('div'); t.className='toast'; t.setAttribute('role','status'); t.innerHTML = ic(icon)+`<span>${esc(msg)}</span>`; $('#phone').appendChild(t); setTimeout(()=>t.remove(), 3000); }
+function sheet(title, body, {eyebrow=''}={}){
+  $('#layer').innerHTML = `<div class="sheet-scrim" data-close></div><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-t"><div class="grab" aria-hidden="true"></div>
+  <div class="sheet-h"><div>${eyebrow?`<div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--rust)">${eyebrow}</div>`:''}<h2 id="sh-t">${title}</h2></div><button class="x" data-close aria-label="Close">${ic('x')}</button></div>
+  <div class="sheet-b" id="sheet-b">${body}</div></section>`;
+  setTimeout(()=>($('#sheet-b button, #sheet-b input, #sheet-b textarea') || $('.x')).focus(), 60);
+}
+const closeSheet = () => { $('#layer').innerHTML=''; };
+const meterHtml = (u,c) => { const p=u/c*100; return `<div class="meter ${p>100?'bad':p>=90?'warn':''}" role="meter" aria-valuemin="0" aria-valuemax="${c}" aria-valuenow="${u.toFixed(1)}" aria-label="${u.toFixed(1)} of ${c} hours"><i style="width:${Math.min(p,100)}%"></i></div>`; };
+const elapsed = d => { const s = Math.max(0, Math.floor((Date.now()-d)/1000)); return `${Math.floor(s/3600)}:${String(Math.floor(s%3600/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; };
+
+/* ===== Screens ===== */
+const screens = {};
+screens.today = () => {
+  const h = new Date().getHours(); const greet = h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  const wh = weekHours(), pct = wh/me.capW*100;
+  const next = today.find(v=>v.status==='next');
+  const overdue = active && Date.now() > active.visit.end.getTime();
+  let main;
+  if (active){
+    const c = clients[active.visit.c];
+    main = `<section class="card reveal" style="padding:20px;${overdue?'border-color:#EFB7A8':''}" aria-live="polite">
+      <div class="row" style="justify-content:space-between"><span class="chip ${overdue?'bad':'ok'}">${overdue?'Past scheduled end':'Clocked in'}</span><span class="chip neutral" style="--x:0">${active.method}</span></div>
+      <div class="timer mt-4" id="timer" style="color:var(--navy-900)">${elapsed(active.start)}</div>
+      <p style="margin:4px 0 16px;color:var(--muted)">Since ${fmtT(active.start)} · scheduled until <b style="color:var(--ink)">${fmtT(active.visit.end)}</b></p>
+      <div class="row" style="padding:12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line-2)"><div class="av">${c.name.split(' ').map(x=>x[0]).join('')}</div><div style="line-height:1.35"><b>${esc(c.name)}</b><br><small style="color:var(--muted)">${c.svc} · ${active.dist} m from home</small></div></div>
+      ${overdue?`<div class="banner bad mt-4">${ic('phone')}<div><b>Please clock out.</b> You're past your scheduled end. If you stay clocked in you'll receive an automated call, then your supervisor is notified.</div></div>`:''}
+      <button class="btn btn-danger mt-4" data-act="clockout" style="min-height:64px;font-size:19px">${ic('out')}Clock out</button>
+    </section>`;
+  } else if (next){
+    const c = clients[next.c];
+    main = `<section class="card reveal" style="padding:20px">
+      <div style="font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--rust)">Next visit</div>
+      <div class="row mt-2"><div class="av" style="width:56px;height:56px;font-size:18px">${c.name.split(' ').map(x=>x[0]).join('')}</div><div style="line-height:1.3"><div class="display" style="font-size:26px;color:var(--navy-900)">${esc(c.name)}</div><small style="color:var(--muted);font-size:14px">${c.svc}</small></div></div>
+      <div class="mt-4" style="display:grid;gap:8px;font-size:15px">
+        <div class="row" style="gap:10px">${ic('clock','style="width:20px;color:var(--muted)"')}${fmtT(next.start)} – ${fmtT(next.end)} <span style="color:var(--muted)">(${hrs(next.start,next.end).toFixed(1)} h)</span></div>
+        <div class="row" style="gap:10px">${ic('pin','style="width:20px;color:var(--muted)"')}${esc(c.addr)}</div>
+      </div>
+      ${(wh + hrs(next.start,next.end))/me.capW >= .9 ? `<div class="banner warn mt-4">${ic('alert')}<div>This visit brings you to <b>${(wh+hrs(next.start,next.end)).toFixed(1)} of ${me.capW} hours</b> this week. Please don't stay past your scheduled end.</div></div>`:''}
+      <button class="btn btn-gold mt-4" data-act="clockin" style="min-height:64px;font-size:19px">${ic('qr')}Clock in</button>
+    </section>`;
+  } else {
+    main = `<section class="card reveal" style="padding:24px;text-align:center"><div class="display" style="font-size:24px;color:var(--navy-900)">You're done for today</div><p style="color:var(--muted);margin:4px 0 0">No more visits scheduled. Rest up, ${me.first}.</p></section>`;
+  }
+  const unread = msgs.filter(m=>m.unread).length;
+  return `<header class="hero"><div class="row" style="justify-content:space-between;position:relative;z-index:1"><div class="row" style="gap:10px"><span class="logo"><img src="brand_assets/logo.png" alt="Autumn Lake" width="34"></span><span style="font-size:13px;font-weight:600;color:#C9D3E6">${new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})}</span></div>
+    <span class="chip" style="background:rgba(255,255,255,.1);color:#fff">${ic('shield','style="width:14px"')}EVV</span></div>
+    <h1 class="display" style="font-size:34px;margin:16px 0 0;position:relative;z-index:1;line-height:1.1">${greet},<br>${me.first}.</h1></header>
+  <div class="lift">${main}</div>
+  ${unread?`<button class="list-btn card mt-4 reveal d1" style="border-radius:18px" data-tab="messages"><div class="av" style="background:var(--navy-100)">${ic('chat','style="width:22px"')}</div><div style="flex:1;line-height:1.35"><b>${unread} new message${unread>1?'s':''}</b><br><small style="color:var(--muted)">From ${esc(msgs.find(m=>m.unread).from)}</small></div>${ic('chev','style="width:20px;color:var(--faint)"')}</button>`:''}
+  <section class="card mt-4 reveal d2" style="padding:16px 20px">
+    <div class="row" style="justify-content:space-between"><b>This week</b><span class="mono" style="font-size:15px">${wh.toFixed(1)} / ${me.capW} h</span></div>
+    <div class="mt-2">${meterHtml(wh, me.capW)}</div>
+    <small style="color:${pct>=90?'var(--warn)':'var(--muted)'};display:block;margin-top:6px;font-weight:${pct>=90?600:400}">${pct>100?'Over your weekly cap — your supervisor has been alerted.':pct>=90?`Approaching your weekly cap · ${(me.capW-wh).toFixed(1)} h left`:`${(me.capW-wh).toFixed(1)} h left this week`}</small>
+  </section>
+  <h2 class="section-t">Today</h2>
+  <div class="card reveal d3" style="overflow:hidden">${today.map(v=>{ const c = clients[v.c]; const isActive = active && active.visit.id===v.id;
+    return `<div class="list-btn" style="cursor:default"><div class="av" style="background:${v.status==='done'?'var(--ok-50)':'var(--gold-100)'};color:${v.status==='done'?'var(--ok)':'var(--navy-900)'}">${v.status==='done'?ic('check','style="width:22px"'):c.name.split(' ').map(x=>x[0]).join('')}</div>
+    <div style="flex:1;line-height:1.35"><b>${esc(c.name)}</b><br><small style="color:var(--muted)">${v.status==='done'?`${fmtT(v.aIn)} – ${fmtT(v.aOut)} · log submitted`:`${fmtT(v.start)} – ${fmtT(v.end)}`}</small></div>
+    ${v.status==='done'?'<span class="chip ok">Done</span>':isActive?'<span class="chip info">In progress</span>':'<span class="chip neutral">Upcoming</span>'}</div>`; }).join('')}</div>`;
+};
+
+screens.timesheet = () => {
+  const all = [...week, ...today.filter(v=>v.status==='done')];
+  const total = all.reduce((s,v)=>s+hrs(v.aIn,v.aOut),0);
+  const STEPS = ['Draft','Submitted','Client Signed','Approved','Synced to LaSRS'];
+  const idx = STEPS.indexOf(tsStatus);
+  return `<header style="padding:24px 0 8px"><div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--rust)">Week of ${fmtDay(dayAt(-new Date().getDay(),0))}</div><h1 class="display" style="font-size:34px;margin:4px 0 0;color:var(--navy-900)">Timesheet</h1></header>
+  <section class="card reveal" style="padding:16px 20px">
+    <div class="row" style="justify-content:space-between"><span class="chip ${tsStatus==='Draft'?'neutral':tsStatus==='Client Signed'?'gold':'info'}">${tsStatus}</span><span class="mono">${total.toFixed(2)} h</span></div>
+    <div class="steps mt-3" aria-label="Progress: step ${idx+1} of 5">${STEPS.map((s,i)=>`<i class="${i<=idx?'on':''}"></i>`).join('')}</div>
+    <small style="color:var(--muted)">${tsStatus==='Draft'?'Review your visits, then sign and have your client sign.':tsStatus==='Submitted'?'Signed by you. Hand your phone to your client to sign.':tsStatus==='Client Signed'?'Waiting for supervisor approval, then it syncs to LaSRS.':'Approved'}</small>
+    ${tsStatus==='Draft'?`<button class="btn btn-primary mt-4" data-act="sign-worker">${ic('pen')}Sign &amp; submit</button>`:tsStatus==='Submitted'?`<button class="btn btn-gold mt-4" data-act="sign-client">${ic('pen')}Client signature</button>`:''}
+  </section>
+  <h2 class="section-t">Visits</h2>
+  <div class="card reveal d1" style="overflow:hidden">${all.slice().sort((a,b)=>b.aIn-a.aIn).map(v=>`
+    <button class="list-btn" data-act="correct" data-id="${v.id}" aria-label="Visit ${fmtDay(v.aIn)} with ${esc(clients[v.c].name)}, ${hrs(v.aIn,v.aOut).toFixed(2)} hours. Request correction.">
+      <div style="width:48px;text-align:center;line-height:1.1;flex:none"><div style="font-size:12px;color:var(--muted);font-weight:600">${v.aIn.toLocaleDateString('en-US',{weekday:'short'}).toUpperCase()}</div><div class="display" style="font-size:24px;color:var(--navy-900)">${v.aIn.getDate()}</div></div>
+      <div style="flex:1;line-height:1.35"><b>${esc(clients[v.c].name)}</b><br><small class="mono" style="color:var(--muted)">${fmtT(v.aIn)} – ${fmtT(v.aOut)}</small>${v.corr?`<br><span class="chip ${v.corr==='Pending'?'warn':'ok'}" style="font-size:12px">Correction ${v.corr.toLowerCase()}</span>`:''}</div>
+      <span class="mono" style="font-weight:500">${hrs(v.aIn,v.aOut).toFixed(2)}</span>${ic('edit','style="width:18px;color:var(--faint)"')}</button>`).join('')}</div>
+  <p style="font-size:13.5px;color:var(--muted);margin:12px 4px 0">Tap a visit to request a time correction. Your supervisor reviews every change.</p>`;
+};
+
+screens.messages = () => {
+  if (openThread){
+    const t = msgs.find(m=>m.id===openThread); t.unread = false;
+    return `<header class="row" style="padding:16px 0;gap:12px;position:sticky;top:0;background:var(--paper);z-index:2"><button class="x" data-back aria-label="Back to messages">${ic('back')}</button><div style="line-height:1.3"><b>${esc(t.from)}</b><br><small style="color:var(--muted)">${t.role}</small></div></header>
+    <div style="display:flex;flex-direction:column;gap:12px;padding-bottom:16px">${t.items.map(m=>`<div><div class="bubble ${m.me?'':'them'}">${esc(m.body)}</div><div style="font-size:12px;color:var(--muted);margin-top:4px;text-align:${m.me?'right':'left'}">${fmtT(m.t)}${m.me?' · Delivered':''}</div></div>`).join('')}</div>
+    <form data-form="reply" class="row" style="position:sticky;bottom:0;background:var(--paper);padding:8px 0"><label for="rp" class="sr-only">Reply</label><input id="rp" class="in" placeholder="Reply…" required autocomplete="off"><button class="btn btn-primary" style="width:56px;flex:none" aria-label="Send">${ic('send')}</button></form>`;
+  }
+  return `<header style="padding:24px 0 8px"><h1 class="display" style="font-size:34px;margin:0;color:var(--navy-900)">Messages</h1></header>
+  <div class="card reveal" style="overflow:hidden">${msgs.map(t=>`<button class="list-btn" data-thread="${t.id}"><div class="av" style="background:${t.role==='Supervisor'?'var(--rust-50)':'var(--navy-100)'};color:${t.role==='Supervisor'?'var(--rust)':'var(--navy-900)'}">${t.from.split(' ').map(x=>x[0]).join('').slice(0,2)}</div><div style="flex:1;min-width:0;line-height:1.35"><div class="row" style="justify-content:space-between;gap:8px"><b>${esc(t.from)}</b><small style="color:var(--muted)">${fmtT(t.items.at(-1).t)}</small></div><div style="font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${t.unread?'color:var(--ink);font-weight:600':''}">${esc(t.items.at(-1).body)}</div></div>${t.unread?'<span style="width:10px;height:10px;border-radius:50%;background:var(--rust);flex:none" aria-label="Unread"></span>':''}</button>`).join('')}</div>`;
+};
+
+screens.profile = () => `<header style="padding:24px 0 8px"><h1 class="display" style="font-size:34px;margin:0;color:var(--navy-900)">Profile</h1></header>
+  <section class="card reveal" style="padding:20px"><div class="row"><div class="av" style="width:56px;height:56px;font-size:18px">TR</div><div style="line-height:1.35"><b style="font-size:18px">${me.name}</b><br><small style="color:var(--muted)">Direct Care Worker · <span class="mono">${me.lasrs}</span></small></div></div>
+  <dl style="margin:16px 0 0;display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:15px"><dt style="color:var(--muted)">Supervisor</dt><dd style="margin:0">${me.sup}</dd><dt style="color:var(--muted)">Weekly cap</dt><dd style="margin:0">${me.capW} hours</dd></dl>
+  <a class="btn btn-ghost mt-4" href="tel:2255550100">${ic('phone')}Call my supervisor</a></section>
+  <h2 class="section-t">Reminders</h2>
+  <section class="card" style="padding:4px 20px">
+    <label class="toggle">Push notifications<input type="checkbox" checked><span class="tr"></span></label>
+    <label class="toggle" style="border-top:1px solid var(--line-2)">Text message (SMS)<input type="checkbox" checked><span class="tr"></span></label>
+    <label class="toggle" style="border-top:1px solid var(--line-2)">Automated phone call for missed clock-out<input type="checkbox" checked disabled><span class="tr"></span></label>
+  </section>
+  <p style="font-size:13px;color:var(--muted);margin:8px 4px 0">Phone calls are required by Autumn Lake policy and can't be turned off.</p>
+  <h2 class="section-t">Demo</h2>
+  <section class="card" style="padding:16px 20px;display:grid;gap:12px"><button class="btn btn-ghost" data-act="sim-call">${ic('phone')}Simulate missed clock-out call</button><button class="btn btn-ghost" data-act="sim-overdue">${ic('clock')}Jump active visit past end time</button></section>
+  <button class="btn btn-ghost mt-6" data-act="signout" style="color:var(--bad)">${ic('out')}Sign out</button>
+  <p style="text-align:center;font-size:12.5px;color:var(--faint);margin-top:16px">${ic('shield','style="width:14px;display:inline;vertical-align:-2px"')} Encrypted · Auto sign-out after 15 min idle</p>`;
+
+/* ===== Flows ===== */
+function clockInFlow(){
+  sheet('How do you want to clock in?', `
+    <div style="display:grid;gap:12px">
+      <button class="choice" data-act="scan"><span class="ic" style="background:var(--gold-100);color:var(--navy-900)">${ic('qr')}</span><span><b style="font-size:17px">Scan client's QR code</b><br><small style="color:var(--muted);font-size:14px">Fastest · recommended</small></span></button>
+      <button class="choice" data-act="gps"><span class="ic" style="background:var(--navy-50);color:var(--navy)">${ic('gps')}</span><span><b style="font-size:17px">Use my GPS location</b><br><small style="color:var(--muted);font-size:14px">If the QR code is missing or damaged</small></span></button>
+    </div><p style="font-size:13.5px;color:var(--muted);margin:16px 4px 0">Your location is recorded only at clock in and clock out, as required for Electronic Visit Verification.</p>`, {eyebrow:'EVV'});
+}
+function scanFlow(){
+  sheet('Point at the QR code', `<div class="viewfinder" aria-label="Camera viewfinder"><div class="corners"></div><div class="line"></div><span style="position:absolute;bottom:16px;color:#C9D3E6;font-size:14px">Looking for code…</span></div>`, {eyebrow:'Scan'});
+  setTimeout(()=>{ if ($('.viewfinder')) verified('QR', 18); }, 1900);
+}
+function gpsFlow(){
+  sheet('Finding your location', `<div class="radar" aria-hidden="true"><span></span><span></span><span></span><b>${ic('gps','style="width:26px"')}</b></div><p style="text-align:center;color:var(--muted);margin:0">Hold still for a moment…</p>`, {eyebrow:'GPS'});
+  setTimeout(()=>{ if ($('.radar')) verified('GPS', 34); }, 2000);
+}
+function verified(method, dist){
+  const v = today.find(x=>x.status==='next'), c = clients[v.c];
+  sheet('Confirm your visit', `
+    <div class="banner" style="background:var(--ok-50);color:#1D4A35;border:1px solid #BCDBC8">${ic('check')}<div><b>${method==='QR'?'Code verified':'Location verified'}</b> · ${dist} m from client's home (within ${c.radius} m)</div></div>
+    <dl class="card mt-4" style="padding:16px 20px;margin:0;display:grid;grid-template-columns:auto 1fr;gap:10px 16px;box-shadow:none;font-size:15px">
+      <dt style="color:var(--muted)">Client</dt><dd style="margin:0;font-weight:600">${esc(c.name)}</dd>
+      <dt style="color:var(--muted)">Service</dt><dd style="margin:0">${c.svc}</dd>
+      <dt style="color:var(--muted)">Date</dt><dd style="margin:0">${fmtDay(new Date())}</dd>
+      <dt style="color:var(--muted)">Start time</dt><dd style="margin:0" class="mono">${fmtT(new Date())}</dd>
+      <dt style="color:var(--muted)">Location</dt><dd style="margin:0" class="mono">30.4447, -91.1528</dd></dl>
+    <button class="btn btn-gold mt-4" data-act="confirm-in" data-m="${method}" data-d="${dist}" style="min-height:64px">${ic('check')}Clock in now</button>`, {eyebrow:'EVV'});
+}
+function clockOutFlow(step=1, data={tasks:[], notes:''}){
+  const v = active.visit, c = clients[v.c];
+  if (step===1){
+    sheet('Service log', `<div class="steps" aria-label="Step 1 of 2"><i class="on"></i><i></i></div>
+      <p style="margin:0 0 12px;color:var(--muted)">What did you help ${esc(c.name.split(' ')[0])} with today?</p>
+      <fieldset style="border:0;padding:0;margin:0;display:grid;gap:8px"><legend class="sr-only">Tasks completed</legend>${TASKS.map((t,i)=>`<label class="task"><input type="checkbox" name="task" value="${t}" ${data.tasks.includes(t)?'checked':''}>${t}</label>`).join('')}</fieldset>
+      <label class="f mt-4" for="notes">Notes (optional)</label><textarea id="notes" class="in" rows="3" placeholder="Changes in condition, refusals, concerns…">${esc(data.notes)}</textarea>
+      <button class="btn btn-primary mt-4" data-act="log-next">Continue to client signature</button>`, {eyebrow:`${esc(c.name)} · ${elapsed(active.start)}`});
+  } else {
+    sheet(`${esc(c.name.split(' ')[0])}, please sign`, `<div class="steps" aria-label="Step 2 of 2"><i class="on"></i><i class="on"></i></div>
+      <p style="margin:0 0 12px;color:var(--muted)">I confirm ${esc(me.first)} provided the services listed today from <b>${fmtT(active.start)}</b> to <b>${fmtT(new Date())}</b>.</p>
+      ${padHtml('Client signature')}
+      <button class="btn btn-danger mt-4" data-act="finish-out" style="min-height:64px">${ic('out')}Submit &amp; clock out</button>
+      <button class="btn btn-ghost mt-2" data-act="no-sig" style="min-height:48px;font-size:15px">Client unable to sign</button>`, {eyebrow:'Service log'});
+    initPad();
+  }
+  window._log = data;
+}
+function padHtml(label){ return `<div class="pad-wrap"><canvas id="pad" aria-label="${label} pad. Draw with your finger."></canvas><div class="base"></div><div class="hint">✕ ${label}</div></div><div class="row mt-2" style="justify-content:flex-end"><button class="btn btn-ghost btn-sm" data-act="pad-clear">Clear</button></div>`; }
+let padDirty = false;
+function initPad(){
+  const cv = $('#pad'), r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  cv.width = r.width*dpr; cv.height = r.height*dpr; const ctx = cv.getContext('2d'); ctx.scale(dpr,dpr);
+  ctx.lineWidth = 2.6; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#11244A';
+  padDirty = false; let drawing = false, last;
+  const pt = e => { const b = cv.getBoundingClientRect(); return {x:e.clientX-b.left, y:e.clientY-b.top}; };
+  cv.onpointerdown = e => { drawing = true; last = pt(e); cv.setPointerCapture(e.pointerId); };
+  cv.onpointermove = e => { if(!drawing) return; const p = pt(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.quadraticCurveTo(last.x,last.y,(last.x+p.x)/2,(last.y+p.y)/2); ctx.lineTo(p.x,p.y); ctx.stroke(); last = p; padDirty = true; };
+  cv.onpointerup = cv.onpointercancel = () => drawing = false;
+}
+function correctionFlow(id){
+  const v = [...week, ...today].find(x=>x.id===id); const c = clients[v.c];
+  const t = d => d.toTimeString().slice(0,5);
+  sheet('Request a correction', `<p style="margin:0 0 16px;color:var(--muted)">${esc(c.name)} · ${fmtDay(v.aIn)}<br>Recorded: <span class="mono">${fmtT(v.aIn)} – ${fmtT(v.aOut)}</span></p>
+    <div class="grid gap-3" style="grid-template-columns:1fr 1fr"><div><label class="f" for="ci">Clock in</label><input id="ci" type="time" class="in mono" value="${t(v.aIn)}"></div><div><label class="f" for="co">Clock out</label><input id="co" type="time" class="in mono" value="${t(v.aOut)}"></div></div>
+    <label class="f mt-4" for="cr">Reason <span style="color:var(--bad)">(required)</span></label><textarea id="cr" class="in" rows="3" placeholder="e.g. Phone died, clocked in late. Arrived at 7:00." aria-required="true"></textarea>
+    <small id="cr-err" style="color:var(--bad);display:none;margin-top:4px">Please tell your supervisor why the time needs to change.</small>
+    <button class="btn btn-primary mt-4" data-act="submit-corr" data-id="${id}">${ic('send')}Send to supervisor</button>`, {eyebrow:'Time correction'});
+}
+function signTs(who){
+  sheet(who==='worker'?'Sign your timesheet':'Client signature', `<p style="margin:0 0 12px;color:var(--muted)">${who==='worker'?`I certify the hours on this timesheet (${(week.reduce((s,v)=>s+hrs(v.aIn,v.aOut),0)+today.filter(v=>v.status==='done').reduce((s,v)=>s+hrs(v.aIn,v.aOut),0)).toFixed(2)} h) are true and accurate.`:`I confirm I received the services listed on ${esc(me.first)}'s timesheet this week.`}</p>
+    ${padHtml(who==='worker'?me.name:'Client')}<button class="btn btn-primary mt-4" data-act="ts-sign" data-who="${who}">${ic('check')}${who==='worker'?'Sign & submit':'Sign'}</button>`, {eyebrow:'Timesheet'});
+  initPad();
+}
+function incomingCall(){
+  $('#layer').innerHTML = `<div class="call" role="alertdialog" aria-labelledby="call-t"><div style="text-align:center"><div class="ring"><img src="brand_assets/logo.png" width="84" alt=""></div><h2 id="call-t" class="display" style="font-size:30px;margin:32px 0 4px">Autumn Lake EVV</h2><p style="color:#C9D3E6;margin:0">Automated reminder · (225) 555-0100</p>
+    <p style="margin:24px auto 0;max-width:300px;background:rgba(255,255,255,.08);border-radius:16px;padding:12px 16px;font-size:15px">"Hi ${me.first}, you're still clocked in with your client past your scheduled end. Press 1 to clock out now, or open the app to submit a correction."</p></div>
+    <div class="row" style="gap:56px"><div style="text-align:center"><button class="round" style="background:var(--bad)" data-act="decline" aria-label="Decline call">${ic('x')}</button><div style="margin-top:8px;font-size:14px">Decline</div></div><div style="text-align:center"><button class="round" style="background:#2C9A63" data-act="answer" aria-label="Answer and clock out">${ic('phone')}</button><div style="margin-top:8px;font-size:14px">Press 1</div></div></div></div>`;
+  $('[data-act=answer]').focus();
+}
+
+/* ===== Render ===== */
+function render(){
+  $('#screen').innerHTML = screens[tab]();
+  const unread = msgs.filter(m=>m.unread).length;
+  const T = [['today','Today','home'],['timesheet','Timesheet','sheet'],['messages','Messages','chat'],['profile','Profile','user']];
+  $('#tabs').innerHTML = T.map(([k,l,i])=>`<button data-tab="${k}" ${tab===k?'aria-current="page"':''}>${ic(i)}${l}${k==='messages'&&unread?`<span class="dot" aria-label="${unread} unread">${unread}</span>`:''}</button>`).join('');
+}
+setInterval(()=>{ const t = $('#timer'); if (t && active) t.textContent = elapsed(active.start); }, 1000);
+
+const acts = {
+  clockin: clockInFlow, scan: scanFlow, gps: gpsFlow,
+  'confirm-in': (el) => { const v = today.find(x=>x.status==='next'); active = {visit:v, start:new Date(), method:el.dataset.m, dist:+el.dataset.d}; v.status='active'; closeSheet(); toast(`Clocked in with ${clients[v.c].name}`); render(); },
+  clockout: () => clockOutFlow(1),
+  'log-next': () => { const tasks = [...document.querySelectorAll('[name=task]:checked')].map(x=>x.value); if(!tasks.length){ toast('Select at least one task', 'alert'); return; } clockOutFlow(2, {tasks, notes:$('#notes').value}); },
+  'pad-clear': () => initPad(),
+  'finish-out': () => { if(!padDirty){ toast('Client signature needed', 'alert'); return; } endVisit(); },
+  'no-sig': () => { endVisit(true); },
+  correct: (el) => correctionFlow(el.dataset.id),
+  'submit-corr': (el) => { const r = $('#cr').value.trim(); if(!r){ $('#cr').setAttribute('aria-invalid','true'); $('#cr-err').style.display='block'; $('#cr').focus(); return; } const v = [...week, ...today].find(x=>x.id===el.dataset.id); v.corr='Pending'; closeSheet(); toast('Correction sent to '+me.sup.split(' ')[0]); render(); },
+  'sign-worker': () => signTs('worker'), 'sign-client': () => signTs('client'),
+  'ts-sign': (el) => { if(!padDirty){ toast('Please sign in the box', 'alert'); return; } if (el.dataset.who==='worker'){ tsStatus='Submitted'; toast('Timesheet signed & submitted'); } else { tsStatus='Client Signed'; toast('Client signed · sent for approval'); } closeSheet(); render(); },
+  'sim-call': () => incomingCall(),
+  'sim-overdue': () => { if(!active){ toast('Clock in first to try this', 'alert'); return; } active.visit.end = ago(20); tab='today'; render(); toast('Reminder: you’re past your scheduled end', 'phone'); },
+  decline: () => { closeSheet(); toast('Your supervisor will be notified in 15 min', 'alert'); },
+  answer: () => { closeSheet(); if (active){ tab='today'; render(); clockOutFlow(1); } else toast('Clocked out by phone'); },
+  signout: () => { $('#layer').innerHTML = `<div class="call" style="justify-content:center;gap:24px"><div class="ring" style="width:96px;height:96px"><img src="brand_assets/logo.png" width="76" alt=""></div><h2 class="display" style="font-size:28px;margin:0">Signed out</h2><button class="btn btn-gold" style="max-width:260px" data-act="signin">Sign in</button></div>`; },
+  signin: () => closeSheet(),
+};
+function endVisit(noSig){
+  const v = active.visit; v.aIn = active.start; v.aOut = new Date(); v.status='done'; v.method = active.method; v.tasks = window._log.tasks; active = null;
+  closeSheet(); toast(noSig ? 'Clocked out · supervisor will follow up on signature' : 'Clocked out · service log submitted'); render();
+}
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-close]')) return closeSheet();
+  const tb = e.target.closest('[data-tab]'); if (tb){ tab = tb.dataset.tab; openThread = null; render(); $('#screen').scrollTop = 0; return; }
+  const th = e.target.closest('[data-thread]'); if (th){ openThread = th.dataset.thread; render(); return; }
+  if (e.target.closest('[data-back]')){ openThread = null; render(); return; }
+  const a = e.target.closest('[data-act]'); if (a && acts[a.dataset.act]){ e.preventDefault(); acts[a.dataset.act](a); }
+});
+document.addEventListener('submit', e => { if (e.target.dataset.form==='reply'){ e.preventDefault(); const t = msgs.find(m=>m.id===openThread); t.items.push({me:true, t:new Date(), body:$('#rp').value.trim()}); render(); $('#rp').focus(); } });
+document.addEventListener('keydown', e => { if (e.key==='Escape' && $('#layer').innerHTML) closeSheet(); });
+render();
+</script>
+</body>
+</html>
