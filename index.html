@@ -656,6 +656,7 @@ const I = {
   gauge:'<path d="M4 15a8 8 0 1 1 16 0"/><path d="m12 15 4-5"/>',
   users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/>',
   heart:'<path d="M12 20s-8-4.6-8-10.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8 2.5C20 15.4 12 20 12 20z"/>',
+  idbadge:'<circle cx="10" cy="8" r="3.5"/><path d="M3.5 20a6.5 6.5 0 0 1 10.5-5.1"/><path d="m15 18 2 2 4-4.5"/>',
   layers:'<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',
   chat:'<path d="M4 5h16v11H9l-5 4z"/>',
   chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
@@ -701,12 +702,12 @@ const sigPath = seed => { let d='M4 36'; let x=4; for(let i=0;i<9;i++){ x += 12 
 /* ============ Data ============ */
 const SERVICES = {'LT-PCS':'Long-Term Personal Care','CCW-PAS':'Community Choices — Personal Asst.','NOW-IFS':'NOW Individual & Family Support','RESP':'Respite Care'};
 const supervisors = [
-  {id:'s1', name:'Monique Thibodeaux', region:'East Baton Rouge'},
-  {id:'s2', name:'Darnell Broussard', region:'Livingston & Ascension'},
-  {id:'s3', name:'Claire Fontenot', region:'West Baton Rouge & Iberville'},
-  {id:'s4', name:'Andre Boudreaux', region:'Zachary & East Feliciana'},
-  {id:'s5', name:'Yvette Champagne', region:'Ascension Parish'},
-  {id:'s6', name:'Terrance Melancon', region:'Iberville & Pointe Coupee'},
+  {id:'s1', name:'Monique Thibodeaux', region:'East Baton Rouge', phone:'(225) 555-0201', email:'mthibodeaux@autumnlake.care', since:'2019-04-08'},
+  {id:'s2', name:'Darnell Broussard', region:'Livingston & Ascension', phone:'(225) 555-0202', email:'dbroussard@autumnlake.care', since:'2020-09-14'},
+  {id:'s3', name:'Claire Fontenot', region:'West Baton Rouge & Iberville', phone:'(225) 555-0203', email:'cfontenot@autumnlake.care', since:'2018-02-05'},
+  {id:'s4', name:'Andre Boudreaux', region:'Zachary & East Feliciana', phone:'(225) 555-0204', email:'aboudreaux@autumnlake.care', since:'2022-06-20'},
+  {id:'s5', name:'Yvette Champagne', region:'Ascension Parish', phone:'(225) 555-0205', email:'ychampagne@autumnlake.care', since:'2023-01-09'},
+  {id:'s6', name:'Terrance Melancon', region:'Iberville & Pointe Coupee', phone:'(225) 555-0206', email:'tmelancon@autumnlake.care', since:'2021-11-01'},
 ];
 const clients = [
   {id:'c1', name:'Odette Guidry', addr:'4127 Government St', city:'Baton Rouge', lat:30.4446, lng:-91.1530, svc:'LT-PCS', capW:28, capM:120, usedW:24.5, usedM:98, sup:'s1', lasrs:'LR-30018842', mcd:'••••4471', radius:150, active:true, token:'Q7KD2'},
@@ -1080,6 +1081,54 @@ function peoplePage(page){
 }
 views.workers = () => peoplePage('workers');
 views.clients = () => peoplePage('clients');
+
+/* Supervisors directory + profile */
+const sS = () => supervisors.filter(x => isAdmin() || x.id === role);
+const supStats = id => { const ws = workers.filter(w=>w.sup===id), cs = clients.filter(c=>c.sup===id), act = ws.filter(w=>w.active);
+  return { ws, cs, act, live: visits.filter(v=>!v.end && W(v.w).sup===id).length, corr: corrections.filter(c=>c.status==='Pending' && W(c.w).sup===id).length,
+    over: act.filter(w=>w.hrsW>w.capW).length, hrs: act.reduce((n,w)=>n+w.hrsW,0) }; };
+function supervisorCard(x){
+  const t = supStats(x.id);
+  return `<a class="pcard" href="#/supervisor?id=${x.id}" aria-label="${esc(x.name)}, ${esc(x.region)}">
+    <div class="pc-top"><span class="pc-av"><img src="${photo(x,'supervisor')}" alt="" loading="lazy"></span><span class="sbadge ${SUP_TONE[x.id]||'sb-1'}">${t.ws.length} W · ${t.cs.length} C</span></div>
+    <div class="pc-name">${esc(x.name)}</div><div class="pc-title">Supervisor · ${esc(x.region)}</div>
+    <div class="pc-meta"><div><small>Live visits</small><b>${t.live}</b></div><div><small>Pending corrections</small><b>${t.corr}</b></div></div>
+    <div class="pc-contact"><span>${esc(x.email)}</span><span>${x.phone}</span></div>
+    <span class="pc-arrow" aria-hidden="true">→</span></a>`;
+}
+views.supervisors = () => {
+  const list = sS();
+  return `<div class="dir-head reveal">
+    <div><div class="eyebrow">People</div><h1 class="display">Supervisors</h1><p>${list.length} supervisor${list.length===1?'':'s'} · ${list.reduce((n,x)=>n+supStats(x.id).act.length,0)} active workers</p></div>
+    ${isAdmin() ? `<div class="dir-tools"><button class="btn btn-ghost" data-go="caseloads">${ic('layers')}Manage caseloads</button></div>` : ''}</div>
+  <div class="pgrid">${list.map(supervisorCard).join('')}</div>`;
+};
+views.supervisor = q => {
+  const x = S(q.get('id')); if (!x || !(isAdmin() || x.id === role)) return notFound('supervisor');
+  const t = supStats(x.id), since = pd(x.since);
+  return `${crumb('supervisors','Supervisors',x.name)}
+  <section class="card prof reveal">
+    <div class="prof-head"><div class="prof-photo"><img src="${photo(x,'supervisor')}" alt="Photo of ${esc(x.name)}"><span class="tint" aria-hidden="true"></span></div>
+      <div class="prof-id"><div class="flex flex-wrap gap-2">${chip('Supervisor','info')}${t.over?chip(t.over+' over cap','bad'):''}${t.corr?chip(t.corr+' pending correction'+(t.corr===1?'':'s'),'warn'):''}</div>
+        <h1>${esc(x.name)}</h1><p>${esc(x.region)} · ${x.phone} · ${esc(x.email)}</p></div>
+      ${isAdmin() ? `<div class="prof-actions no-print"><button class="btn btn-ghost" data-go="caseloads">${ic('layers')}Reassign caseload</button></div>` : ''}
+    </div>
+    <div class="stats">
+      ${stat('Supervisor since', fmtLong(since), `${tenure(since)} with Autumn Lake`)}
+      ${stat('Workers', t.ws.length, `${t.act.length} active`)}
+      ${stat('Clients', t.cs.length, `${t.cs.filter(c=>c.active).length} active`)}
+      ${stat('Caseload hours', `${t.hrs} <small>h</small>`, `${t.live} visit${t.live===1?'':'s'} live now`)}
+    </div>
+  </section>
+  <div class="prof-grid mt-2">
+    <section class="card reveal d3"><div class="card-h"><h2>Workers</h2></div><div class="card-b grid gap-2">
+      ${t.ws.map(w=>`<div class="flex items-center justify-between gap-3 inset" style="padding:8px 12px">${personLink(w,'worker',`${w.lasrs} · ${empStatus(w)}`)}<div class="text-right" style="min-width:140px"><small class="mono" style="color:var(--muted)">${w.hrsW} / ${w.capW} h this wk</small>${meter(w.hrsW,w.capW)}</div></div>`).join('') || '<div class="empty" style="padding:16px">No workers assigned.</div>'}
+    </div></section>
+    <section class="card reveal d3"><div class="card-h"><h2>Clients</h2></div><div class="card-b grid gap-2">
+      ${t.cs.map(c=>`<div class="flex items-center justify-between gap-3 inset" style="padding:8px 12px">${personLink(c,'client',`${c.svc} · ${esc(c.city)}${c.active?'':' · Disabled'}`)}<div class="text-right" style="min-width:140px"><small class="mono" style="color:var(--muted)">${c.usedW} / ${c.capW} h this wk</small>${meter(c.usedW,c.capW)}</div></div>`).join('') || '<div class="empty" style="padding:16px">No clients assigned.</div>'}
+    </div></section>
+  </div>`;
+};
 
 let laneOpen = {};
 const laneIsOpen = id => laneOpen[id] ?? window.innerWidth >= 900;
@@ -1999,7 +2048,7 @@ const actions = {
 const NAV = [
   ['Overview', [['home','Home','home'],['live','Live visits','pin'],['calendar','Calendar','cal']]],
   ['Time', [['corrections','Corrections','edit'],['timesheets','Timesheets','sheet'],['caps','Hour caps','gauge']]],
-  ['People', [['workers','Workers','users'],['clients','Clients','heart'],['caseloads','Caseloads','layers',true],['messages','Messages','chat']]],
+  ['People', [['workers','Workers','users'],['clients','Clients','heart'],['supervisors','Supervisors','idbadge'],['caseloads','Caseloads','layers',true],['messages','Messages','chat']]],
   ['Compliance', [['reports','Reports','chart'],['lasrs','LaSRS sync','sync'],['audit','Audit log','shield'],['settings','Settings','cog',true]]],
 ];
 function renderNav(route){
@@ -2013,10 +2062,10 @@ function render(){
   let [route, qs] = (location.hash.slice(2) || 'home').split('?');
   if (!views[route] || (['caseloads','settings'].includes(route) && !isAdmin())) route = 'home';
   const q = new URLSearchParams(qs || '');
-  renderNav({worker:'workers', client:'clients'}[route] || route);
+  renderNav({worker:'workers', client:'clients', supervisor:'supervisors'}[route] || route);
   $('#main').innerHTML = views[route](q);
   views[route].after && views[route].after();
-  const nm = route==='worker' ? W(q.get('id'))?.name : route==='client' ? C(q.get('id'))?.name : null;
+  const nm = route==='worker' ? W(q.get('id'))?.name : route==='client' ? C(q.get('id'))?.name : route==='supervisor' ? S(q.get('id'))?.name : null;
   document.title = `${nm || (NAV.flatMap(g=>g[1]).find(i=>i[0]===route)||[0,'Profile'])[1]} · Autumn Lake EVV`;
 }
 let prevRoute = '';
